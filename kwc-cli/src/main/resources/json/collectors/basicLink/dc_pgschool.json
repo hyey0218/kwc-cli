@@ -1,0 +1,11 @@
+{
+	"pk": null,
+	"title": "//*[@id=\"container\"]/section/article[2]/div[1]/header/div/h3/span[2]",
+	"contId": "no",
+	"writer": "//*[@id=\"container\"]/section/article[2]/div[1]/header/div/div/div[1]/*[1]",
+	"content": "//*[@id=\"container\"]/section/article[2]/div[1]/div/div[1]/div[@class=\"writing_view_box\"]",
+	"pageUrl": "https://gall.dcinside.com/board/lists/?id=pgschool&page=",
+	"titleLink": "//*[@id=\"container\"]/section[1]/article[2]/div[2]/table/tbody/tr[contains(@class,\"us-post\")]/td[2]/a[1]/em[not(@class=\"icon_img icon_notice\")]/..",
+	"writeDate": "//*[@id=\"container\"]/section/article[2]/div[1]/header/div/div/div[1]/*[@class=\"gall_date\"]",
+	"wdatePattern": "yyyy.MM.dd HH:mm:ss"
+}

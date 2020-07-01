@@ -1,0 +1,19 @@
+{
+	"list":[
+		"basicLink"
+	],
+	"detail": {
+		"basicLink": [
+			{
+				"name": "dc_pgschool",
+				"cron": ""
+			},
+			{
+				"name": "daum_news-1",
+				"cron": "0 40 11 * * *",
+				"start": "1",
+				"end": "10"
+			}
+		]
+	}
+}
