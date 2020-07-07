@@ -160,4 +160,16 @@ public class CommonUtils {
 		return str;
 	}
 	
+	public static String getHost(String uri) {
+		UriComponents uriComp = UriComponentsBuilder.fromUriString(uri).build();
+		return uriComp.getHost();
+	}
+	public static String getValidFileName(String fileName) {
+	    String newFileName = fileName.replace("^\\.+", "").replaceAll("[\\\\/:*?\"<>|]", "");
+	    if(newFileName.length()==0)
+	        throw new IllegalStateException(
+	                "File Name " + fileName + " results in a empty fileName!");
+	    return newFileName;
+	}
+	
 }

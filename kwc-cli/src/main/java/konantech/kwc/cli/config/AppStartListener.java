@@ -1,6 +1,7 @@
 package konantech.kwc.cli.config;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.ScheduledFuture;
@@ -20,6 +21,7 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
 import konantech.kwc.cli.proc.WebCrawler;
+import konantech.kwc.cli.search.SearchRestClient;
 
 @Component
 public class AppStartListener implements ApplicationListener<ApplicationStartedEvent> {
@@ -29,12 +31,14 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 	ResourceLoader resourceLoader;
 	@Autowired
 	ThreadPoolTaskScheduler tpts;
-	
+//	
 	@Autowired
 	WebCrawler webCrawler;
 	@Override
 	public void onApplicationEvent(ApplicationStartedEvent event) {
 		appStart();
+//		SearchRestClient src = new SearchRestClient();
+//		src.getFindHashedQuery("++Z/J6321VxfcknQ5tWWkQ==");
 	}
 	
 	
@@ -48,9 +52,11 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 //			String[] fs=new File(".").list();
 //			for(String f : fs )
 //				System.out.println(f);
-			System.out.println(resourceLoader.getResource("classpath:/json/list.json").getURI().getPath());
+//			System.out.println(resourceLoader.getResource("classpath:/json/list.json").getURI().getPath());
+			System.out.println(new File("./json/list.json").getPath());
 			
-			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(resourceLoader.getResource("classpath:/json/list.json").getURI().getPath()));
+//			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(resourceLoader.getResource("classpath:/json/list.json").getURI().getPath()));
+			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(new File("./json/list.json")));
 			JSONArray jArray = (JSONArray) json.get("list");
 			JSONObject detail = (JSONObject) json.get("detail");
 			
@@ -69,14 +75,14 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 							int end = Integer.valueOf( (String) obj.get("end") );
 							String filePath = j+"/"+fileName+".json";
 							System.out.println(filePath);
-							File file = resourceLoader.getResource("classpath:/json/collectors/"+filePath).getFile();
+//							File file = resourceLoader.getResource("classpath:/json/collectors/"+filePath).getFile();
+							File file = new File("./json/collectors/"+filePath);
 							task(cron,file.getAbsolutePath(),start,end);
 						}
 					}catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
-				
 					
 			});
 			
@@ -89,7 +95,7 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 		}
 	}
 	public void task(String cron, String filePath, int start, int end) {
-//		ScheduledFuture<?> future = this.tpts.schedule(()->{
+		ScheduledFuture<?> future = this.tpts.schedule(()->{
 			logger.info("scheduled task start!!!");
 			try {
 				JSONObject object = (JSONObject) new JSONParser().parse(new FileReader(filePath));
@@ -104,7 +110,7 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 				e.printStackTrace();
 			}
 					
-//		},new CronTrigger(cron));
+		},new CronTrigger(cron));
 	}
 
 }
