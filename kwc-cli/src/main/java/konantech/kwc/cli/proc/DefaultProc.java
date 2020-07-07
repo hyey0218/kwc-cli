@@ -29,7 +29,7 @@ import lombok.Setter;
 @Setter
 public class DefaultProc implements Runnable{
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-	protected WebCrawler wc;
+	WebCrawler wc;
 	ExecutorService threadService;
 	protected WebDriver driver;
 	protected String channel;
@@ -46,14 +46,14 @@ public class DefaultProc implements Runnable{
 	protected String param2;
 	protected String extParam;
 	
-	protected BlockingQueue<Map<String,String>> links;
+	BlockingQueue<String> links;
 	
 	List<Crawl> crawlList = new ArrayList<Crawl>();
 	ConcurrentHashMap<String,Short> errorLink;
 	
 	protected Crawl obj;
 	
-	public DefaultProc(WebCrawler wc,ExecutorService threadService, BlockingQueue<Map<String,String>> links, ConcurrentHashMap<String,Short> errorLink) {
+	public DefaultProc(WebCrawler wc,ExecutorService threadService, BlockingQueue<String> links, ConcurrentHashMap<String,Short> errorLink) {
 		this.wc = wc;
 		this.threadService = threadService;
 		this.links = links;
@@ -86,10 +86,8 @@ public class DefaultProc implements Runnable{
 	}
 	public void proc() {
 		String url = null;
-		Map<String,String> map = null;
 		try {
-			while( ( map = links.poll( 15, TimeUnit.SECONDS) ) != null ) {
-				url = map.get("href");
+			while( ( url = links.poll( 15, TimeUnit.SECONDS) ) != null ) {
 				logger.info(url);
 				obj = new Crawl();
 				try {
@@ -128,7 +126,7 @@ public class DefaultProc implements Runnable{
 							errorLink.put(url, (short) 1);
 						}
 						logger.error("RETRY : " + driver.getCurrentUrl());
-						links.put(map);
+						links.put(url);
 						continue;
 					}else if(errorLink.size() >= 3) {
 						//에러 3번 이상일때는 더이상 수집 안해

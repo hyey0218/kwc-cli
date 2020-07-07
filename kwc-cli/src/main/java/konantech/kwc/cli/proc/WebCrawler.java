@@ -1,17 +1,5 @@
 package konantech.kwc.cli.proc;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.GatheringByteChannel;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,12 +10,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -40,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import konantech.kwc.cli.common.CommonUtils;
 import konantech.kwc.cli.common.Constants;
 import konantech.kwc.cli.entity.Crawl;
 import konantech.kwc.cli.service.CrawlService;
@@ -60,9 +44,6 @@ public class WebCrawler {
 	@Autowired
 	CrawlService crawlService;
 	
-	
-	String rootPath;
-	
 	public void setPage(int start, int end) {
 		this.start = start;
 		this.end = end;
@@ -75,7 +56,7 @@ public class WebCrawler {
 		int thread = Integer.parseInt(kwcThread);
 		int queue = Integer.parseInt(queueSize);
 		
-		BlockingQueue<Map<String,String>> links = new ArrayBlockingQueue<Map<String,String>>(queue);
+		BlockingQueue<String> links = new ArrayBlockingQueue<String>(queue);
 		ConcurrentHashMap<String,Short> errorLink = new ConcurrentHashMap<String,Short>();
 		
 		
@@ -90,11 +71,6 @@ public class WebCrawler {
 		String collectorClass = StringUtils.defaultString((String) object.get("collector"), "");
 		collectorClass = collectorClass.equals("")?Constants.DEFAULT_PACKAGE+"DefaultProc":Constants.PROC_PACKAGE+collectorClass;
 		logger.info("CollectorClass -> " + collectorClass);
-		
-		if(!StringUtils.isEmpty((String)object.get("output"))) {
-//			rootPath = new File((String)object.get("output"));
-			rootPath = (String)object.get("output");
-		}
 		for(int i=0;i<selen.length;i++) {
 			
 //			DefaultProc sm = new DefaultProc(links); 
@@ -111,14 +87,15 @@ public class WebCrawler {
 			selen[i] = sm;
 			service.execute(sm);
 		}
+		System.out.println("MAIN QUIT!!");
 		main.shutdown();
 		service.shutdown();
 	}
 	
 	class LinkCrawlerThread implements Runnable{
 		WebDriver webDriver;
-		BlockingQueue<Map<String,String>> links;
-		public LinkCrawlerThread(BlockingQueue<Map<String,String>> links) {
+		BlockingQueue<String> links;
+		public LinkCrawlerThread(BlockingQueue<String> links) {
 			this.links = links;
 		}
 		
@@ -139,36 +116,16 @@ public class WebCrawler {
 		public void run() {
 			try {
 				webDriver = openBrowser();
-				int interval = 1;
-				if( !StringUtils.isEmpty((String) object.get("interval")) )
-					interval = Integer.parseInt((String) object.get("interval"));
 				
-				for(int i = start; i<= (end*interval) ; i=i+interval) {
+				for(int i = start; i<= end ; i++) {
 					webDriver.get(object.get("pageUrl")+String.valueOf(i));
 					Thread.sleep(3000);
 					By titleLink = By.xpath((String) object.get("titleLink"));
 					List<WebElement> titleLinks = webDriver.findElements(titleLink);
-					if(titleLinks.isEmpty())
-						break;
-					List<WebElement> newsName = webDriver.findElements(By.xpath("//*[@id=\"main_pack\"]/div[2]/ul/li/dl/dd/span[1]"));
-					int ii = 0;
+					
 					for(WebElement e : titleLinks) {
-//							links.put(e.getAttribute("href"));
-						Map<String,String> map = new HashMap<String, String>();
-						map.put("href", e.getAttribute("href"));
-						map.put("text", e.getText());
-						String news = "";
-						//임시
-						try {
-							news = newsName.get(ii).getText(); 
-						}catch(NoSuchElementException ee) {
-							news = "-";
-						}
-						map.put("news",news);
-						links.put(map);
-						ii++;
+						links.put(e.getAttribute("href"));
 					}
-
 				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
@@ -181,56 +138,5 @@ public class WebCrawler {
 	
 	public void saveData(List<Crawl> dataList) {
 		crawlService.saveCrawl(dataList, "");
-	}
-	
-	public synchronized void saveDataAsFile2(String folName , String title , String content) {
-		
-		File folder = new File(rootPath, folName);
-		if(!folder.exists())
-			folder.mkdir();
-		File newFile = new File(folder, CommonUtils.getValidFileName(title)+".html");
-		
-		try {
-			newFile.createNewFile();
-			FileOutputStream fos = new FileOutputStream(newFile);
-			GatheringByteChannel gbc = fos.getChannel();
-			
-//			ByteBuffer bb = ByteBuffer.allocateDirect(4096);
-			
-			Charset charset = Charset.forName("UTF-8");
-			
-			ByteBuffer bb = charset.encode(content);
-			bb.flip();
-			gbc.write(bb);
-			bb.clear();
-			fos.close();
-			
-		} catch (Exception e) {
-			logger.error(CommonUtils.getStackTrace(e));
-		}
-		
-	}
-	public synchronized void saveDataAsFile(String folName , String title , String content) {
-		Path path = Paths.get(rootPath, folName, CommonUtils.getValidFileName(title)+".html");
-		
-		try {
-			FileUtils.forceMkdirParent(path.toFile());
-			FileChannel fileChannel = FileChannel.open(path, EnumSet.of(StandardOpenOption.CREATE,StandardOpenOption.WRITE));
-			
-			
-			Charset charset = Charset.forName("UTF-8");
-//			ByteBuffer nonDirectBuffer = ByteBuffer.allocate((int) content.getBytes().length);
-			ByteBuffer nonDirectBuffer = charset.encode(content);
-			nonDirectBuffer.put(content.getBytes());
-			
-			nonDirectBuffer.flip();
-			fileChannel.write(nonDirectBuffer);
-			nonDirectBuffer.clear();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 	}
 }
