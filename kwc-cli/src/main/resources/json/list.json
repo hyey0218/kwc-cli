@@ -10,10 +10,41 @@
 			},
 			{
 				"name": "daum_news-1",
-				"cron": "0 40 11 * * *",
+				"cron": "",
 				"start": "1",
 				"end": "10"
+			},
+			{
+				"name": "naver_news-elect2",
+				"cron": "0 11 18 * * *",
+				"start": "1",
+				"end": "2"
+			},
+			{
+				"name": "naver_news-elect2",
+				"cron": "0 50 18 * * *",
+				"start": "1",
+				"end": "2000"
+			},
+			{
+				"name": "naver_news-elect3",
+				"cron": "0 50 19 * * *",
+				"start": "1",
+				"end": "2000"
+			},
+			{
+				"name": "naver_news-elect4",
+				"cron": "0 50 20 * * *",
+				"start": "1",
+				"end": "2000"
+			},
+			{
+				"name": "naver_news-elect5",
+				"cron": "0 50 21 * * *",
+				"start": "1",
+				"end": "2000"
 			}
+			
 		]
 	}
 }

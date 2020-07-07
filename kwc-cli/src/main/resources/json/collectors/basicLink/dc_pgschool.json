@@ -1,5 +1,8 @@
 {
-	"pk": null,
+	"collector" : "" ,
+	"channel":"커뮤니티",
+	"site":"디시인사이드",
+	"board":"대학원갤러리",
 	"title": "//*[@id=\"container\"]/section/article[2]/div[1]/header/div/h3/span[2]",
 	"contId": "no",
 	"writer": "//*[@id=\"container\"]/section/article[2]/div[1]/header/div/div/div[1]/*[1]",

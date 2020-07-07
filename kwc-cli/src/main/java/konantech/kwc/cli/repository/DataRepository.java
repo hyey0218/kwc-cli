@@ -5,30 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.FlushModeType;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Fetch;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.Metamodel;
 
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +62,7 @@ public class DataRepository {
 	@Transactional
 	public void saveDataList(List<DataEntity> dataList, LocalDateTime minTableMon) {
 		StringBuffer sb = new StringBuffer();
-		em.unwrap(Session.class).setJdbcBatchSize(10);
+//		em.unwrap(Session.class).setJdbcBatchSize(10);
 		
 		for(DataEntity data : dataList) {
 			if(data.getWrite_time().isBefore(minTableMon))
@@ -109,7 +92,7 @@ public class DataRepository {
 	@Transactional
 	public void updateDataList(List<DataEntity> dataList, LocalDateTime minTableMon) {
 		
-		em.unwrap(Session.class).setJdbcBatchSize(10);
+//		em.unwrap(Session.class).setJdbcBatchSize(10);
 		String updateQuery = "update %s set ";
 		
 		for(DataEntity data : dataList) {
