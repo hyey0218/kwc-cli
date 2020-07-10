@@ -13,15 +13,17 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import konantech.kwc.cli.proc.WebCrawler;
-import konantech.kwc.cli.search.SearchRestClient;
 
 @Component
 public class AppStartListener implements ApplicationListener<ApplicationStartedEvent> {
@@ -31,32 +33,26 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 	ResourceLoader resourceLoader;
 	@Autowired
 	ThreadPoolTaskScheduler tpts;
-//	
 	@Autowired
 	WebCrawler webCrawler;
+	
+	@Value("${json.path}")
+	String jsonPath;
+	
+	
 	@Override
 	public void onApplicationEvent(ApplicationStartedEvent event) {
 		appStart();
-//		SearchRestClient src = new SearchRestClient();
-//		src.getFindHashedQuery("++Z/J6321VxfcknQ5tWWkQ==");
 	}
 	
 	
 	@SuppressWarnings("unchecked")
 	public void appStart() {
-		
-		//C:\dev\aikwc_svn\kwc-cli\src\main\resources\json\Collector.json
-		//C:\dev\aikwc_svn\kwc-cli\src\main\java\konantech\kwc\cli\config\AppStartListener.java
 		try {
-			System.out.println(new File(".").getAbsolutePath());
-//			String[] fs=new File(".").list();
-//			for(String f : fs )
-//				System.out.println(f);
-//			System.out.println(resourceLoader.getResource("classpath:/json/list.json").getURI().getPath());
-			System.out.println(new File("./json/list.json").getPath());
 			
-//			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(resourceLoader.getResource("classpath:/json/list.json").getURI().getPath()));
-			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(new File("./json/list.json")));
+			File path = ResourceUtils.getFile(jsonPath);
+			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(new File(path,"list.json")));
+			System.out.println(path.getAbsolutePath());
 			JSONArray jArray = (JSONArray) json.get("list");
 			JSONObject detail = (JSONObject) json.get("detail");
 			
@@ -75,8 +71,7 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 							int end = Integer.valueOf( (String) obj.get("end") );
 							String filePath = j+"/"+fileName+".json";
 							System.out.println(filePath);
-//							File file = resourceLoader.getResource("classpath:/json/collectors/"+filePath).getFile();
-							File file = new File("./json/collectors/"+filePath);
+							File file = new File(path,"collectors/"+filePath);
 							task(cron,file.getAbsolutePath(),start,end);
 						}
 					}catch (Exception e) {
@@ -85,10 +80,6 @@ public class AppStartListener implements ApplicationListener<ApplicationStartedE
 				}
 					
 			});
-			
-//			JSONObject collector = (JSONObject) new JSONParser().parse(new FileReader(resourceLoader.getResource("classpath:/json/collectors/dc_pgschool.json").getURI().getPath()));
-//			webCrawler.setObject(collector);
-//			webCrawler.work();			
 			
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -1,0 +1,14 @@
+{
+	"collector" : "DaumNewsProc" ,
+	"channel":"뉴스",
+	"site":"다음",
+	"board":"IT",
+	"title": "//*[@id=\"cSub\"]/div/h3",
+	"contId": "_path",
+	"writer": "//*[@id=\"cSub\"]/div/span/span[1]",
+	"content": "//*[@id=\"harmonyContainer\"]",
+	"pageUrl": "https://news.daum.net/breakingnews/digital?page=",
+	"titleLink": "//*[@id=\"mArticle\"]/div[3]/ul/li/div/strong/a",
+	"writeDate": "//*[@id=\"cSub\"]/div/span/span[2]/span",
+	"wdatePattern": "yyyy.MM.dd. HH:mm"
+}

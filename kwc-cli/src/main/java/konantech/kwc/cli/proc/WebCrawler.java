@@ -147,10 +147,11 @@ public class WebCrawler {
 					webDriver.get(object.get("pageUrl")+String.valueOf(i));
 					Thread.sleep(3000);
 					By titleLink = By.xpath((String) object.get("titleLink"));
+					By textxp = By.xpath((String) object.get("text"));
 					List<WebElement> titleLinks = webDriver.findElements(titleLink);
 					if(titleLinks.isEmpty())
 						break;
-					List<WebElement> newsName = webDriver.findElements(By.xpath("//*[@id=\"main_pack\"]/div[2]/ul/li/dl/dd/span[1]"));
+					List<WebElement> newsName = webDriver.findElements(textxp);
 					int ii = 0;
 					for(WebElement e : titleLinks) {
 //							links.put(e.getAttribute("href"));
@@ -179,36 +180,12 @@ public class WebCrawler {
 		}
 	}
 	
+
+	
+	
+	/*********************** after job start**************************/
 	public void saveData(List<Crawl> dataList) {
 		crawlService.saveCrawl(dataList, "");
-	}
-	
-	public synchronized void saveDataAsFile2(String folName , String title , String content) {
-		
-		File folder = new File(rootPath, folName);
-		if(!folder.exists())
-			folder.mkdir();
-		File newFile = new File(folder, CommonUtils.getValidFileName(title)+".html");
-		
-		try {
-			newFile.createNewFile();
-			FileOutputStream fos = new FileOutputStream(newFile);
-			GatheringByteChannel gbc = fos.getChannel();
-			
-//			ByteBuffer bb = ByteBuffer.allocateDirect(4096);
-			
-			Charset charset = Charset.forName("UTF-8");
-			
-			ByteBuffer bb = charset.encode(content);
-			bb.flip();
-			gbc.write(bb);
-			bb.clear();
-			fos.close();
-			
-		} catch (Exception e) {
-			logger.error(CommonUtils.getStackTrace(e));
-		}
-		
 	}
 	public synchronized void saveDataAsFile(String folName , String title , String content) {
 		Path path = Paths.get(rootPath, folName, CommonUtils.getValidFileName(title)+".html");
@@ -219,18 +196,17 @@ public class WebCrawler {
 			
 			
 			Charset charset = Charset.forName("UTF-8");
-//			ByteBuffer nonDirectBuffer = ByteBuffer.allocate((int) content.getBytes().length);
-			ByteBuffer nonDirectBuffer = charset.encode(content);
-			nonDirectBuffer.put(content.getBytes());
+			ByteBuffer bb = charset.encode(content);
+			bb.put(content.getBytes());
 			
-			nonDirectBuffer.flip();
-			fileChannel.write(nonDirectBuffer);
-			nonDirectBuffer.clear();
+			bb.flip();
+			fileChannel.write(bb);
+			bb.clear();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(CommonUtils.getStackTrace(e));
 		}
-
 	}
+	
+	/*********************** after job end**************************/
 }

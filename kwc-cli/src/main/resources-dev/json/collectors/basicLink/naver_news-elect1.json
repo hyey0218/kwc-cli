@@ -2,6 +2,7 @@
 	"collector" : "NaverNewsElectProc" ,
 	"interval" : "10",
 	"output" : "D://news",
+	"text" : "//*[@id=\"main_pack\"]/div[2]/ul/li/dl/dd/span[1]",
 	"channel":"뉴스",
 	"site":"네이버",
 	"board":"선거검색",
